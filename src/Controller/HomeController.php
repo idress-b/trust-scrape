@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\Scraper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -12,29 +13,16 @@ use Symfony\Component\Routing\Attribute\Route;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(Request $request): Response
+    public function index(): Response
     {
-        $form = $this->createFormBuilder()
-            ->add('address', TextType::class)
-            ->getForm();
 
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $address = $form->getData()['address'];
-            return $this->redirectToRoute('app_result', ['address' => $address]);
-        }
+        $scraper = new Scraper();
+        $infosScraped = $scraper->extractInfos('https://fr.trustpilot.com/review/outillage-du-mecanicien.fr');
+        $title = $infosScraped['title'];
+        $numberReviews = $infosScraped['numberReviews'];
 
         return $this->render('home/index.html.twig', [
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/result', name: 'app_result')]
-    public function result(Request $request): Response
-    {
-        $address = $request->query->get('address');
-        return $this->render('home/address.html.twig', [
-            'address' => $address,
+            'infos' => $infosScraped,
         ]);
     }
 }
