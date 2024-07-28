@@ -25,12 +25,13 @@ class Scraper extends HttpBrowser
         $qualityReview = trim(end($arrayReview), " \t\n\r\0\x0B\xC2\xA0") ?? 'not found';
 
         $rating = $crawler->filter('[class*="star-rating_starRating"] ~ p')->text('not found');
-
+        $cardInfos = $crawler->filter('[class*="styles_reviewCard"]')->text('not found');
         return [
             'title' => $title,
             'numberReviews' => $numberReviews,
             'qualityReview' => $qualityReview,
             'rating' => $rating,
+            'cards' => $cardInfos
         ];
     }
 }
